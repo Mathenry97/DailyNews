@@ -57,7 +57,25 @@ const OUTPUT_TOOL = {
   },
 };
 
-export async function generateTopicBlock(topicKey: TopicKey, date: string): Promise<TopicBlock> {
+// Valide la forme du tool_use avant de faire confiance à son contenu — le
+// modèle peut, rarement, renvoyer un input malformé (ex: bullets en chaîne
+// de texte au lieu d'un tableau). Mieux vaut réessayer que publier ça tel quel.
+function isWellFormed(input: unknown): input is { isEmpty: boolean; emptyReason?: string; bullets: BulletPoint[] } {
+  if (typeof input !== "object" || input === null) return false;
+  const candidate = input as Record<string, unknown>;
+  if (typeof candidate.isEmpty !== "boolean") return false;
+  if (!Array.isArray(candidate.bullets)) return false;
+  return candidate.bullets.every(
+    (b) =>
+      typeof b === "object" &&
+      b !== null &&
+      typeof (b as BulletPoint).title === "string" &&
+      typeof (b as BulletPoint).body === "string" &&
+      Array.isArray((b as BulletPoint).sources)
+  );
+}
+
+async function callOnce(topicKey: TopicKey, date: string) {
   const topic = getTopic(topicKey);
 
   const systemPrompt = `Tu es le générateur de contenu d'un brief d'actualité quotidien français, neutre et factuel.
@@ -92,7 +110,10 @@ Règles générales, valables pour tous les sujets :
       } as any,
       OUTPUT_TOOL,
     ],
-    tool_choice: { type: "tool", name: "publier_bloc" },
+    // Ne pas forcer tool_choice sur "publier_bloc" : ça obligerait le modèle à
+    // répondre immédiatement sans jamais passer par web_search. On laisse le
+    // choix libre pour qu'il cherche d'abord, puis publie le résultat.
+    tool_choice: { type: "auto" },
     messages: [
       {
         role: "user",
@@ -105,11 +126,23 @@ Règles générales, valables pour tous les sujets :
     (block): block is Anthropic.ToolUseBlock => block.type === "tool_use" && block.name === "publier_bloc"
   );
 
-  if (!toolUse) {
-    throw new Error(`Aucune sortie structurée reçue pour le sujet ${topicKey}`);
+  if (!toolUse || !isWellFormed(toolUse.input)) {
+    return null;
   }
 
-  const input = toolUse.input as { isEmpty: boolean; emptyReason?: string; bullets: BulletPoint[] };
+  return toolUse.input;
+}
+
+export async function generateTopicBlock(topicKey: TopicKey, date: string): Promise<TopicBlock> {
+  // Un input malformé est rare mais arrive (ex: le modèle renvoie bullets
+  // en texte libre au lieu d'un tableau) — une seule tentative suffit à
+  // corriger le tir dans l'immense majorité des cas.
+  let input = await callOnce(topicKey, date);
+  if (!input) input = await callOnce(topicKey, date);
+
+  if (!input) {
+    throw new Error(`Sortie structurée invalide pour le sujet ${topicKey} après deux tentatives`);
+  }
 
   return {
     topic: topicKey,

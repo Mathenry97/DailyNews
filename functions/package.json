@@ -5,7 +5,8 @@
   "description": "Moteur de génération du brief quotidien — un job par sujet, une fois par jour.",
   "type": "commonjs",
   "scripts": {
-    "generate": "tsx src/generateTopic.ts",
+    "generate": "tsx --env-file=.env src/generateTopic.ts",
+    "generate:all": "tsx --env-file=.env src/generateAll.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

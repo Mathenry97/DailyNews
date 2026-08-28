@@ -31,7 +31,9 @@ const OUTPUT_TOOL = {
       },
       bullets: {
         type: "array",
-        description: "2 à 3 informations factuelles maximum, chacune avec au moins une source.",
+        description:
+          "Au moins 3 informations factuelles et distinctes (voir la règle éditoriale du sujet pour le nombre " +
+          "visé exact), chacune avec au moins une source.",
         items: {
           type: "object",
           properties: {
@@ -83,13 +85,24 @@ Sujet du jour : "${topic.label}".
 Périmètre : ${topic.scope}
 Règle éditoriale impérative pour ce sujet : ${topic.rule}
 
-Règles générales, valables pour tous les sujets :
-- Recherche les informations marquantes des dernières ~18h à la date du ${date}.
-- Sois factuel et précis : noms, chiffres, lieux, dates exactes. Jamais de référence vague.
-- Chaque bullet doit avoir au moins une source vérifiable (titre + URL).
-- Si tu ne trouves rien d'assez solide et vérifiable, dis-le honnêtement (isEmpty: true) plutôt que d'inventer
-  ou d'étirer une information ancienne ou vague.
-- Ne présente jamais un événement futur comme passé, ni l'inverse.
+Socle commun, valable pour tous les sujets (voir docs/regles_editoriales.md pour la version complète) :
+- Format : bullet points uniquement, jamais de paragraphes de prose. Chaque bullet = un titre court et factuel,
+  suivi d'1 à 2 phrases factuelles et précises dans le corps. Minimum 3 bullets par sujet.
+- Fraîcheur et anti-répétition (règle la plus importante, car tu n'as pas de mémoire du brief de la veille) :
+  privilégie des faits datés et concrets du jour même ou de la veille (date du ${date}) — annonce, résultat,
+  décision, sortie précise, chiffre publié ce jour-là — plutôt que des "marronniers" qui restent vrais
+  plusieurs jours sans rien de neuf. Un sujet de fond ne doit être repris que s'il y a un développement
+  nouveau et identifiable depuis la veille (titre précis, prix décerné, polémique, chiffre mis à jour).
+- Vérifie toujours la date exacte d'un événement avant de l'écrire : ne présente jamais un événement futur
+  comme passé, ni l'inverse.
+- Factualité : nomme explicitement les personnes, entreprises, lieux, scores, montants — jamais de référence
+  vague. Si un chiffre varie selon les sources, précise-le brièvement.
+- Effectue au moins une recherche web distincte par bullet avant de rédiger le contenu final — ne rédige
+  jamais un bullet sans avoir vérifié la source via web_search.
+- Chaque bullet doit avoir au moins une source vérifiable (titre + URL), pour que l'app puisse l'afficher
+  cliquable.
+- Si tu ne trouves rien d'assez solide et vérifiable après une recherche sérieuse, dis-le honnêtement
+  (isEmpty: true) plutôt que d'inventer ou d'étirer une information ancienne ou vague.
 - Réponds uniquement via l'outil "publier_bloc".`;
 
   const response = await anthropic.messages.create({
@@ -110,10 +123,13 @@ Règles générales, valables pour tous les sujets :
       } as any,
       OUTPUT_TOOL,
     ],
-    // Ne pas forcer tool_choice sur "publier_bloc" : ça obligerait le modèle à
-    // répondre immédiatement sans jamais passer par web_search. On laisse le
-    // choix libre pour qu'il cherche d'abord, puis publie le résultat.
-    tool_choice: { type: "auto" },
+    // On force le PREMIER tour sur web_search (jamais sur "publier_bloc") :
+    // ça garantit qu'au moins une recherche a lieu avant toute publication,
+    // même avec l'exigence renforcée de 3+ bullets sourcés. Le modèle reste
+    // ensuite libre d'enchaîner d'autres recherches puis d'appeler
+    // "publier_bloc" quand il est prêt — tool_choice ne contraint que le tout
+    // premier appel d'outil de la réponse, pas les suivants.
+    tool_choice: { type: "tool", name: "web_search" },
     messages: [
       {
         role: "user",

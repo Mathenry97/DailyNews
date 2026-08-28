@@ -23,14 +23,22 @@ const SCOPE_AND_RULE: Record<TopicKey, { scope: string; rule: string }> = {
     scope:
       "conflits, diplomatie, relations entre États, institutions européennes (Parlement, Commission, Conseil), migrations au niveau européen.",
     rule:
-      "Croise au moins deux agences de presse (AFP, Reuters, AP) sur les faits contestés. " +
-      "Distingue clairement un État agissant seul (International) d'une décision collective des 27 (Europe).",
+      "Vise 3 à 4 informations distinctes et non répétitives : un conflit armé, une catastrophe naturelle, " +
+      "une actualité diplomatique, un fait politique majeur dans un grand pays. Sur les conflits en cours " +
+      "(Ukraine, Gaza), cherche le développement précis des dernières 24-48h (frappe datée avec bilan chiffré, " +
+      "statut de négociation, déclaration officielle nommée), pas l'état général. Distingue clairement un fait " +
+      "daté d'aujourd'hui/hier d'un contexte de fond plus ancien. Croise au moins deux agences de presse " +
+      "(AFP, Reuters, AP) sur les faits contestés. Distingue clairement un État agissant seul (International) " +
+      "d'une décision collective des 27 (Europe).",
   },
   france: {
     scope: "gouvernement, Assemblée nationale, réformes, décisions ministérielles.",
     rule:
-      "Cite les responsables par leur nom et fonction exacte. Présente les positions des différents partis " +
-      "sans surreprésenter l'un d'eux.",
+      "Sujet prioritaire : ne le laisse jamais vide sans recherche approfondie. Creuse le budget, les réformes, " +
+      "l'Assemblée nationale, les décisions ministérielles, la vie politique (candidatures, rentrée politique " +
+      "des partis). Cite les responsables par leur nom et fonction exacte. Vise 3 informations distinctes : " +
+      "actualité électorale/partisane, décision gouvernementale concrète, événement politique daté. Présente " +
+      "les positions des différents partis sans surreprésenter l'un d'eux.",
   },
   societe: {
     scope: "faits divers, justice, éducation, cohésion sociale, sécurité.",
@@ -41,7 +49,11 @@ const SCOPE_AND_RULE: Record<TopicKey, { scope: string; rule: string }> = {
   economie: {
     scope: "emploi, chômage, inflation, salaires, grandes décisions industrielles.",
     rule:
-      "Jamais la bourse ni les indices boursiers. Toujours un chiffre daté avec sa source (Insee, Banque de France, Dares).",
+      "Exclus totalement la bourse et les indices (CAC 40, marchés, cours de l'action). Concentre-toi sur " +
+      "l'économie réelle : emploi/chômage, inflation, pouvoir d'achat, salaires, plans sociaux, résultats " +
+      "d'entreprise en termes d'activité, prises de position patronales/syndicales. Toujours un chiffre daté " +
+      "avec sa source (Insee, Banque de France, Dares). Vise 3 informations : une décision d'entreprise " +
+      "concrète, un indicateur macro daté, un fait de contexte.",
   },
   environnement: {
     scope: "climat, biodiversité, énergie, catastrophes naturelles — France ET international.",
@@ -64,17 +76,26 @@ const SCOPE_AND_RULE: Record<TopicKey, { scope: string; rule: string }> = {
     scope: "produits, entreprises, régulation, avancées techniques.",
     rule:
       "Si un seul sujet domine vraiment la journée, détaille-le (specs, prix, disponibilité, comparaison à la " +
-      "version précédente) plutôt que d'empiler des titres superficiels.",
+      "version précédente) plutôt que d'empiler des titres superficiels. Ne te limite pas à l'IA générative : " +
+      "hardware, résultats d'entreprises tech en termes d'activité/demande (jamais la bourse), annonces " +
+      "produit, régulation/procès tech. Vise 3 informations distinctes.",
   },
   culture: {
     scope: "cinéma, musique, littérature, arts, spectacle vivant.",
-    rule: "Alterne grand public et scène indépendante. N'oublie jamais la musique (sorties, concerts du jour).",
+    rule:
+      "Diversifie les angles, France ET international : cinéma, musique, littérature (seulement avec un fait " +
+      "précis et nouveau), arts/expositions, spectacle vivant, jeux vidéo si pertinent. Ne te rabats jamais " +
+      "systématiquement sur le même repère récurrent d'un jour à l'autre. Vise 3 informations dans des " +
+      "sous-catégories différentes. N'oublie jamais la musique (sorties, concerts du jour).",
   },
   sport: {
     scope: "généraliste — pas seulement le football (tennis, cyclisme, rugby, basket...).",
     rule:
-      "Vérifie systématiquement que l'événement est bien passé ou du jour même, jamais un résultat périmé " +
-      "présenté comme récent. Priorise un événement français majeur du soir quand il y en a un.",
+      "Traite toujours une actualité sportive générale, pas seulement le football (tennis, cyclisme, rugby, " +
+      "basket, etc. selon l'actualité réelle du jour). Ne traite pas systématiquement le même sport comme " +
+      "référence par défaut — varie d'un jour à l'autre. Vérifie systématiquement que l'événement est bien " +
+      "passé ou du jour même, jamais un résultat périmé présenté comme récent. Priorise un événement français " +
+      "majeur du soir quand il y en a un. Vise 3 informations dans des sports différents.",
   },
 };
 

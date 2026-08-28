@@ -34,11 +34,15 @@ const SCOPE_AND_RULE: Record<TopicKey, { scope: string; rule: string }> = {
   france: {
     scope: "gouvernement, Assemblée nationale, réformes, décisions ministérielles.",
     rule:
-      "Sujet prioritaire : ne le laisse jamais vide sans recherche approfondie. Creuse le budget, les réformes, " +
-      "l'Assemblée nationale, les décisions ministérielles, la vie politique (candidatures, rentrée politique " +
-      "des partis). Cite les responsables par leur nom et fonction exacte. Vise 3 informations distinctes : " +
-      "actualité électorale/partisane, décision gouvernementale concrète, événement politique daté. Présente " +
-      "les positions des différents partis sans surreprésenter l'un d'eux.",
+      "Sujet prioritaire : ne le laisse jamais vide sans recherche approfondie. Diversifie les angles : le " +
+      "budget ne doit être qu'UN sujet parmi d'autres, jamais dominant ni répété sur plusieurs bullets — au " +
+      "maximum 1 bullet sur 3 peut porter sur le budget. Creuse aussi les réformes hors budget, l'activité " +
+      "parlementaire, les décisions ministérielles, la vie politique (candidatures, rentrée politique des " +
+      "partis, tensions internes), la justice ou l'administration si pertinent. Cite les responsables par " +
+      "leur nom et fonction exacte. Vise 3 informations distinctes et non redondantes entre elles : par " +
+      "exemple une actualité électorale/partisane, une décision gouvernementale concrète (hors budget si " +
+      "possible), un événement politique daté. Présente les positions des différents partis sans " +
+      "surreprésenter l'un d'eux.",
   },
   societe: {
     scope: "faits divers, justice, éducation, cohésion sociale, sécurité.",

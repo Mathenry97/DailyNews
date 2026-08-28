@@ -1,4 +1,9 @@
 node_modules/
 dist/
-.env
 .claude/
+
+# Secrets serveur (clé Anthropic, service_role Supabase) — jamais commités.
+# app/.env n'est PAS concerné : il ne contient que des valeurs publiques
+# (URL Supabase + clé anon/publishable), déjà visibles dans le bundle JS
+# envoyé au client, donc committées par convention Expo.
+functions/.env

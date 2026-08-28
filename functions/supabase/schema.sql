@@ -48,3 +48,11 @@ create policy "anyone can update app_users rows"
   on app_users for update
   using (true)
   with check (true);
+
+-- Nécessaire même si l'app ne lit jamais app_users directement : l'upsert
+-- (INSERT ... ON CONFLICT DO UPDATE) a besoin en interne d'une policy SELECT
+-- pour résoudre la ligne en conflit, sinon Postgres rejette l'upsert avec
+-- une violation RLS même quand INSERT et UPDATE sont permissifs.
+create policy "app_users readable for upsert resolution"
+  on app_users for select
+  using (true);
